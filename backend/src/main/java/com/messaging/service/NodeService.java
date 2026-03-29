@@ -73,3 +73,23 @@ public class NodeService {
         activeNodes.put(currentNode.getNodeId(), copy(currentNode));
     }
 
+    public List<NodeInfo> getAllNodes() {
+        return activeNodes.values().stream()
+                .map(this::copy)
+                .sorted(Comparator.comparing(NodeInfo::getNodeId))
+                .toList();
+    }
+
+    private NodeInfo copy(NodeInfo source) {
+        if (source == null) {
+            return null;
+        }
+        return new NodeInfo(
+                source.getNodeId(),
+                source.getUrl(),
+                source.getRole(),
+                source.getElectionZnode(),
+                source.isLeader()
+        );
+    }
+}
