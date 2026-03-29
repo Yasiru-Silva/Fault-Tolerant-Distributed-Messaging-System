@@ -88,3 +88,18 @@ public class LeaderElection implements Watcher {
         nodeService.setLeader(iAmLeader);
         nodeWatcher.updateCurrentNodeData();
 
+        if (iAmLeader) {
+            log.info("Node {} became LEADER using znode {}", leaderNodeId, leaderPath);
+        } else {
+            log.info("Node {} is FOLLOWER. Current leader is {} using znode {}",
+                    nodeService.getCurrentNode().getNodeId(), leaderNodeId, leaderPath);
+            recoverySyncService.syncFromLeaderIfNeeded();
+        }
+    }
+
+    private void ensurePath(String path) throws KeeperException, InterruptedException {
+        if (zooKeeper.exists(path, false) == null) {
+            zooKeeper.create(path, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        }
+    }
+}
